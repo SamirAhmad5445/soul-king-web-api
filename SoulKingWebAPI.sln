@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34723.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoulKingWebAPI", "SoulKingWebAPI\SoulKingWebAPI.csproj", "{611AFE10-0466-42CB-8136-776B71240888}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{611AFE10-0466-42CB-8136-776B71240888}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{611AFE10-0466-42CB-8136-776B71240888}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{611AFE10-0466-42CB-8136-776B71240888}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{611AFE10-0466-42CB-8136-776B71240888}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {18936FC7-08C6-4A94-80AC-2F87AAE1A593}
+	EndGlobalSection
+EndGlobal
