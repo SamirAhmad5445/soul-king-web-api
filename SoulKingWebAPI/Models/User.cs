@@ -6,7 +6,7 @@ namespace SoulKingWebAPI.Models
   public class User
   {
     #region Constructors
-    public User(int id, string username, byte[] passwordHash, byte[] passwordSalt, string firstName, string lastName, string email, string description, DateOnly birthDate, bool isActivated)
+    public User(int id, string username, byte[] passwordHash, byte[] passwordSalt, string firstName, string lastName, string email, string description, DateOnly birthDate)
     {
       Id = id;
       Username = username;
@@ -17,7 +17,6 @@ namespace SoulKingWebAPI.Models
       Email = email;
       Description = description;
       BirthDate = birthDate;
-      IsActivated = isActivated;
     }
 
     public User(string username, string password, string firstName, string lastName, string email, DateOnly birthDate)
@@ -28,7 +27,6 @@ namespace SoulKingWebAPI.Models
       Email = email;
       BirthDate = birthDate;
       Description = string.Empty;
-      IsActivated = false;
 
       CreatePasswordHash(password);
     }
@@ -44,12 +42,9 @@ namespace SoulKingWebAPI.Models
     public string Email { get; set; }
     public string Description { get; set; }
     public DateOnly BirthDate { get; set; }
-    public bool IsActivated { get; set; } = false;
     #endregion
 
     #region Relationships
-    // OTP
-    public List<OneTimePassword> OTPs { get; set; } // 1:N
     // Refresh Token
     public List<RefreshToken> RefreshTokens { get; set; } // 1:N
     // playlists

@@ -1,4 +1,6 @@
-﻿namespace SoulKingWebAPI.Models
+﻿using System.Security.Cryptography;
+
+namespace SoulKingWebAPI.Models
 {
   public class RefreshToken
   {
@@ -10,10 +12,9 @@
       ExpiryDate = expiryDate;
     }
 
-    public RefreshToken(string value)
+    public RefreshToken()
     {
-      Value = value;
-      ExpiryDate = DateTime.Now.AddDays(30);
+      ExpiryDate = DateTime.Now.AddDays(14);
     }
     #endregion
 
@@ -27,6 +28,13 @@
     // User
     public int UserId { get; set; } // M:1
     public User User { get; set; }
+    #endregion
+
+    #region Methods
+    public void Generate()
+    {
+      Value = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+    }
     #endregion
   }
 }

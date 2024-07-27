@@ -7,7 +7,6 @@ namespace SoulKingWebAPI.Data
   {
     public DbSet<User> Users { get; set; }
     public DbSet<RefreshToken> Tokens { get; set; }
-    public DbSet<OneTimePassword> OTPs { get; set; }
     public DbSet<Artist> Artists { get; set; }
     public DbSet<Playlist> Playlists { get; set; }
     public DbSet<Album> Albums { get; set; }
