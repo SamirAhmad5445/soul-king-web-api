@@ -42,6 +42,19 @@ namespace SoulKingWebAPI.Data
           .HasForeignKey(s => s.ArtistId)
           .OnDelete(DeleteBehavior.ClientSetNull);
 
+      modelBuilder.Entity<Artist>().HasData(
+          new Artist(
+            1,
+            "brook",
+            "Sk Brook", 
+            "abcd1234",
+            "sk.brook@strawhats.com",
+            "A musician and swordsman who is also a skeleton.",
+            "Soul King",
+            "Brook",
+            new DateOnly(1974, 4, 13))
+        );
+      
       modelBuilder.Entity<Category>().HasData(
           new Category(1, "Rock"),
           new Category(2, "Pop"),

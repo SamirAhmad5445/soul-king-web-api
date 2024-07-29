@@ -7,7 +7,7 @@ namespace SoulKingWebAPI.Models
   public class Artist
   {
     #region Constructors
-    public Artist(int id, string username, string displayName, byte[] passwordHash, byte[] passwordSalt, string email, string description, string firstName, string lastName, DateOnly birthDate, bool isActivated, int followersCount)
+    public Artist(int id, string username, string displayName, byte[] passwordHash, byte[] passwordSalt, string email, string description, string firstName, string lastName, DateOnly birthDate, bool isActivated, string token, int followersCount)
     {
       Id = id;
       Username = username;
@@ -20,10 +20,13 @@ namespace SoulKingWebAPI.Models
       LastName = lastName;
       BirthDate = birthDate;
       IsActivated = isActivated;
+      Token = token;
       FollowersCount = followersCount;
     }
 
-    public Artist(string username, string displayName, string password, string email, string description, string firstName, string lastName, DateOnly birthDate) {
+    public Artist(int id, string username, string displayName, string password, string email, string description, string firstName, string lastName, DateOnly birthDate)
+    {
+      Id = id;
       Username = username;
       DisplayName = displayName;
       Email = email;
@@ -32,6 +35,23 @@ namespace SoulKingWebAPI.Models
       LastName = lastName;
       BirthDate = birthDate;
       IsActivated = false;
+      Token = string.Empty;
+      FollowersCount = 0;
+
+      CreatePasswordHash(password);
+    }
+
+    public Artist(string username, string displayName, string password, string email, string description, string firstName, string lastName, DateOnly birthDate)
+    {
+      Username = username;
+      DisplayName = displayName;
+      Email = email;
+      Description = description;
+      FirstName = firstName;
+      LastName = lastName;
+      BirthDate = birthDate;
+      IsActivated = false;
+      Token = string.Empty;
       FollowersCount = 0;
 
       CreatePasswordHash(password);
@@ -50,6 +70,7 @@ namespace SoulKingWebAPI.Models
     public string LastName { get; set;}
     public DateOnly BirthDate { get; set; }
     public bool IsActivated { get; set; } = false;
+    public string Token { get; set; }
     public int FollowersCount { get; set; } = 0;
     #endregion
 

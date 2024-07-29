@@ -1,6 +1,6 @@
 ﻿namespace SoulKingWebAPI.Models.DTO
 {
-  public class RegisterUserDTO
+  public class UserRegisterDTO
   {
     public required string Username {  get; set; }
     public required string Password {  get; set; }

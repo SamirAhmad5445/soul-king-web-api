@@ -34,7 +34,7 @@ namespace SoulKingWebAPI.Controllers
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<string>> Register(RegisterUserDTO request)
+    public async Task<ActionResult<string>> Register(UserRegisterDTO request)
     {
       if (IsUsernameExists(request.Username))
       {
@@ -76,7 +76,7 @@ namespace SoulKingWebAPI.Controllers
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<string>> Login(LoginUserDTO request)
+    public async Task<ActionResult<string>> Login(UserLoginDTO request)
     {
       if (
         request.Username == null || request.Username == "" ||
@@ -121,12 +121,13 @@ namespace SoulKingWebAPI.Controllers
     }
 
     [HttpPut("refresh")]
-    public async Task<ActionResult<string>> Refresh(string Username)
+    public async Task<ActionResult<string>> Refresh()
     {
-      var token = Request.Cookies["refresh-token"];
-
       try
       {
+        var Username = Request.Cookies["username"];
+        var Token = Request.Cookies["refresh-token"];
+
         var user = await db.Users
           .Include(u => u.RefreshTokens)
           .SingleOrDefaultAsync(u => u.Username == Username);
@@ -138,7 +139,7 @@ namespace SoulKingWebAPI.Controllers
 
         var latestToken = user.RefreshTokens.Last();
 
-        if (!latestToken.Value.Equals(token))
+        if (!latestToken.Value.Equals(Token))
         {
           return Unauthorized("Invalid Refresh Token.");
         } 
@@ -161,10 +162,33 @@ namespace SoulKingWebAPI.Controllers
       }
     }
 
-    [HttpGet("test"), Authorize(Roles = "User")]
-    public ActionResult<string> Test()
+    [HttpGet("info"), Authorize(Roles = "User")]
+    public async Task<ActionResult<UserInfoDTO>> GetUserInfo()
     {
-      return Ok("Hello, Wolrd!");
+      try
+      {
+        var Username = Request.Cookies["username"];
+
+        if (Username == null || Username == string.Empty)
+        {
+          return BadRequest("Invalid username, unable to fetch your data.");
+        }
+
+        User? user = await db.Users.SingleOrDefaultAsync(u => u.Username == Username);
+
+        if(user == null)
+        {
+          return NotFound("User was not found.");
+        }
+
+        UserInfoDTO response = new UserInfoDTO().FromUser(user);
+
+        return Ok(response);
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occurred while generating the token.");
+      }
     }
 
     #region Utils
@@ -208,6 +232,7 @@ namespace SoulKingWebAPI.Controllers
         Expires = Token.ExpiryDate
       };
 
+      Response.Cookies.Append("username", Username, cookieOptions);
       Response.Cookies.Append("refresh-token", Token.Value, cookieOptions);
 
       try
