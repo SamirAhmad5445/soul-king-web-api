@@ -11,7 +11,6 @@ namespace SoulKingWebAPI.Data
     public DbSet<Playlist> Playlists { get; set; }
     public DbSet<Album> Albums { get; set; }
     public DbSet<Song> Songs { get; set; }
-    public DbSet<Category> Categories { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -66,26 +65,6 @@ namespace SoulKingWebAPI.Data
               new DateOnly(1996, 8, 29)
             )
         );
-
-      modelBuilder.Entity<Category>().HasData(
-          new Category(1, "Rock"),
-          new Category(2, "Pop"),
-          new Category(3, "Jazz"),
-          new Category(4, "Hip-hop"),
-          new Category(5, "Classical"),
-          new Category(6, "Electronic"),
-          new Category(7, "Country"),
-          new Category(8, "Blues"),
-          new Category(9, "Reggae"),
-          new Category(10, "Metal"),
-          new Category(11, "K-pop"),
-          new Category(12, "Rap"),
-          new Category(13, "J-pop"),
-          new Category(14, "Latin"),
-          new Category(15, "Funk"),
-          new Category(16, "Soul")
-        );
-
 
       base.OnModelCreating(modelBuilder);
     }

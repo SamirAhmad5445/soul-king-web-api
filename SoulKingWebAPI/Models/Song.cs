@@ -44,9 +44,6 @@
     public Album Album { get; set; }
     // Playlist
     public List<Playlist> AssociatedPlaylists { get; set; } // M:N
-    // Categiry
-    public int CategiryId { get; set; } // M:1
-    public Category Category { get; set; }
     #endregion
   }
 }

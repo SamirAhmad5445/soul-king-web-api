@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
@@ -347,7 +348,7 @@ namespace SoulKingWebAPI.Controllers
     }
 
     [HttpGet("album/{Name}")]
-    public async Task<ActionResult<string>> GetAlbum(string Name)
+    public async Task<ActionResult<AlbumDTO>> GetAlbum(string Name)
     {
       if (!await IsArtistAllowed())
       {
@@ -410,7 +411,7 @@ namespace SoulKingWebAPI.Controllers
 
       if (!System.IO.File.Exists(filePath))
       {
-        return NotFound("Thumbnail file was not found2222.");
+        return NotFound("Thumbnail file was not found.");
       }
 
       var image = System.IO.File.OpenRead(filePath);
@@ -502,7 +503,7 @@ namespace SoulKingWebAPI.Controllers
     #endregion
 
     #region SongsActions
-    [HttpPost("song/release")]
+    [HttpPost("album/add-song")]
     public async Task<ActionResult<string>> ReleaseSong(ReleaseSongDTO request)
     {
       if (!await IsArtistAllowed())
@@ -545,7 +546,70 @@ namespace SoulKingWebAPI.Controllers
 
       try
       {
-        return Ok();
+        Album? album = await db.Albums
+          .Include(al => al.Artist)
+          .Include(al => al.Songs)
+          .SingleOrDefaultAsync(al => al.Name == request.AlbumName && al.Artist.Username == artistName);
+
+        if (album == null)
+        {
+          return NotFound("Album was not Found.");
+        }
+
+        if(album.Songs.SingleOrDefault(s => s.Name == request.Name) != null)
+        {
+          return Conflict("The album contain a song with the same name.");
+        }
+
+        var rootPath = env.ContentRootPath;
+        var songPath = Path.Combine(
+            AUDIOS_DIRECTORY,
+            album.Artist.Username,
+            request.AlbumName,
+            request.Name
+          );
+        var uploadsFolder = Path.Combine(
+            rootPath,
+            songPath
+          );
+
+        if (!Directory.Exists(uploadsFolder))
+        {
+          Directory.CreateDirectory(uploadsFolder);
+        }
+
+        var imagePath = Path.Combine(uploadsFolder, $"{request.Name}.webp");
+
+        using (var image = Image.Load(request.Image.OpenReadStream()))
+        {
+          var size = Math.Min(image.Width, image.Height);
+          var rect = new Rectangle((image.Width - size) / 2, (image.Height - size) / 2, size, size);
+
+          image.Mutate(img => img.Crop(rect));
+          await image.SaveAsync(imagePath, new SixLabors.ImageSharp.Formats.Webp.WebpEncoder());
+        }
+
+        var audioPath = Path.Combine(uploadsFolder, $"{request.Name}.mp3");
+
+        using (var fileStream = new FileStream(audioPath, FileMode.Create))
+        {
+          await request.Audio.CopyToAsync(fileStream);
+        }
+
+        var newSong = new Song(
+            request.Name,
+            Path.Combine(songPath, $"{request.Name}.mp3").ToString(),
+            Path.Combine(songPath, $"{request.Name}.webp").ToString()
+          )
+          {
+            ArtistId = album.ArtistId,
+            AlbumId = album.Id
+          };
+
+        await db.Songs.AddAsync(newSong);
+        await db.SaveChangesAsync();
+
+        return Ok("New song added to the album.");
       }
       catch (Exception)
       {
@@ -553,6 +617,212 @@ namespace SoulKingWebAPI.Controllers
       }
     }
 
+    [HttpGet("album/{AlbumName}/songs")]
+    public async Task<ActionResult<List<SongDTO>>> GetAllSongInfo(string AlbumName)
+    {
+      if (!await IsArtistAllowed())
+      {
+        return Unauthorized("Your access has been denied.");
+      }
+      var artistName = Request.Cookies["username"]!;
+
+      if (AlbumName == null || AlbumName == string.Empty)
+      {
+        return BadRequest("Invalid album name.");
+      }
+
+      try
+      {
+        var album = await db.Albums
+          .Include(al => al.Artist)
+          .Include(al => al.Songs)
+          .SingleOrDefaultAsync(al => al.Name == AlbumName && al.Artist.Username == artistName);
+
+        if (album == null)
+        {
+          return NotFound("Album was not found.");
+        }
+
+        List<SongDTO> results = [];
+
+        foreach (var song in album.Songs.ToList())
+        {
+          var Listeners = db.Songs
+            .Include(s => s.Listeners)
+            .SingleOrDefault(s => s.Id == song.Id)
+            !.Listeners.ToList();
+
+          results.Add(new SongDTO().FromSong(song, Listeners.Count));
+        }
+
+
+        return Ok(results);
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occurred while generating the token.");
+      }
+    }
+
+    [HttpGet("album/{AlbumName}/{Name}")]
+    public async Task<ActionResult<SongDTO>> GetSongInfo(string AlbumName, string Name)
+    {
+      if (!await IsArtistAllowed())
+      {
+        return Unauthorized("Your access has been denied.");
+      }
+      var artistName = Request.Cookies["username"]!;
+
+      if (AlbumName == null || AlbumName == string.Empty)
+      {
+        return BadRequest("Invalid album name.");
+      }
+
+      try
+      {
+        var song = await db.Songs
+          .Include(s => s.Artist)
+          .Include(s => s.Album)
+          .Include(s => s.Listeners)
+          .SingleOrDefaultAsync(
+            s => s.Name == Name && s.Artist.Username == artistName && s.Album.Name == AlbumName
+          );
+
+        if (song == null)
+        {
+          return NotFound("song was not found.");
+        }
+
+        var result = new SongDTO().FromSong(song, song.Listeners.ToList().Count);
+        return Ok(result);
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occurred while generating the token.");
+      }
+    }
+
+    [HttpGet("album/{AlbumName}/{Name}/image")]
+    public async Task<IActionResult> GetSongImage(string AlbumName, string Name) {
+      if (!await IsArtistAllowed())
+      {
+        return Unauthorized("Your access has been denied.");
+      }
+
+      var artistName = Request.Cookies["username"];
+
+      var song = await db.Songs
+          .Include(s => s.Artist)
+          .Include(s => s.Album)
+          .SingleOrDefaultAsync(
+            s => s.Name == Name && s.Artist.Username == artistName && s.Album.Name == AlbumName
+          );
+
+      if (song == null)
+      {
+        NotFound("Song was not found.");
+      }
+
+      var filePath = Path.Combine(env.ContentRootPath, song!.ImagePath);
+
+      if (!System.IO.File.Exists(filePath))
+      {
+        return NotFound("Thumbnail file was not found.");
+      }
+
+      var image = System.IO.File.OpenRead(filePath);
+      return File(image, "image/webp");
+    }
+
+    [HttpGet("album/{AlbumName}/{Name}/file")]
+    public async Task<IActionResult> GetSongFile(string AlbumName, string Name)
+    {
+      if (!await IsArtistAllowed())
+      {
+        return Unauthorized("Your access has been denied.");
+      }
+
+      var artistName = Request.Cookies["username"];
+
+      var song = await db.Songs
+          .Include(s => s.Artist)
+          .Include(s => s.Album)
+          .SingleOrDefaultAsync(
+            s => s.Name == Name && s.Artist.Username == artistName && s.Album.Name == AlbumName
+          );
+
+      if (song == null)
+      {
+        NotFound("Song was not found.");
+      }
+
+      var filePath = Path.Combine(env.ContentRootPath, song!.FilePath);
+
+      if (!System.IO.File.Exists(filePath))
+        return NotFound("File not found.");
+
+      var mimeType = "audio/mpeg";
+      return PhysicalFile(filePath, mimeType, $"{Name}.mp3");
+    }
+
+    [HttpDelete("album/{AlbumName}/{Name}/delete")]
+    public async Task<ActionResult<string>> DeleteSong(string AlbumName, string Name)
+    {
+      if (!await IsArtistAllowed())
+      {
+        return Unauthorized("Your access has been denied.");
+      }
+      var artistName = Request.Cookies["username"]!;
+
+      if (AlbumName == null || AlbumName == string.Empty)
+      {
+        return BadRequest("Invalid album name.");
+      }
+
+
+      if (Name == null || Name == string.Empty)
+      {
+        return BadRequest("Invalid song name.");
+      }
+
+      try
+      {
+        var song = await db.Songs
+          .Include(s => s.Artist)
+          .Include(s => s.Album)
+          .SingleOrDefaultAsync(s => s.Artist.Username == artistName &&
+            s.Album.Name == AlbumName && s.Name == Name);
+
+        if (song == null)
+        {
+          return NotFound("Song was not found.");
+        }
+
+        var folderPath = Path.Combine(
+                 env.ContentRootPath,
+                 AUDIOS_DIRECTORY,
+                 artistName,
+                 AlbumName,
+                 Name
+               );
+
+        if (!Directory.Exists(folderPath))
+        {
+          return NotFound("Image file was not found.");
+        }
+
+        Directory.Delete(folderPath, true);
+
+        db.Songs.Remove(song);
+        await db.SaveChangesAsync();
+
+        return Ok("Song has been deleted from the album.");
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occurred while generating the token.");
+      }
+    }
     #endregion
 
     private async Task<bool> IsArtistAllowed()

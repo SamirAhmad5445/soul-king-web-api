@@ -4,22 +4,14 @@
   {
     public ArtistResponseDTO() { }
 
-    public ArtistResponseDTO(string username, string firstName, string lastName, string displayName, string description, bool isActivated)
-    {
-      Username = username;
-      FirstName = firstName;
-      LastName = lastName;
-      DisplayName = displayName;
-      Description = description;
-      IsActivated = isActivated;
-    }
-
     public string Username {  get; set; }
     public string FirstName {  get; set; }
     public string LastName {  get; set; }
     public string DisplayName { get; set; }
     public string Description {  get; set; }
     public bool IsActivated { get; set; }
+    public int FollowersCount { get; set; } = 0;
+
 
     public ArtistResponseDTO FromArtist(Artist artist)
     {
@@ -28,6 +20,7 @@
       LastName = artist.LastName;
       DisplayName = artist.DisplayName;
       Description = artist.Description;
+      FollowersCount = artist.FollowersCount;
       IsActivated = artist.IsActivated;
 
       return this;
