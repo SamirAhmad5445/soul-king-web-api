@@ -3,21 +3,19 @@
   public class Playlist
   {
     #region Constructors
-    public Playlist(int id, string name, string description, DateTime creationDate, string access)
+    public Playlist(int id, string name, string description, DateTime creationDate)
     {
       Id = id;
       Name = name;
       Description = description;
       CreationDate = creationDate;
-      Access = access;
     }
 
-    public Playlist(string name, string description, DateTime creationDate, string access)
+    public Playlist(string name, string description, DateTime creationDate)
     {
       Name = name;
       Description = description;
       CreationDate = creationDate;
-      Access = access;
     }
     #endregion
 
@@ -26,7 +24,6 @@
     public string Name { get; set; }
     public string Description { get; set; }
     public DateTime CreationDate { get; set; }
-    public string Access {  get; set; }
     #endregion
 
     #region Relationships

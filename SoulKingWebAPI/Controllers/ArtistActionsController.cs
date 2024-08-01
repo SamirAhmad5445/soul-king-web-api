@@ -19,18 +19,12 @@ namespace SoulKingWebAPI.Controllers
     private readonly string[] allowedImageExtensions = [".jpg", ".jpeg", ".png"];
 
     #region Profile Actions
-    [HttpGet("info")]
-    public async Task<ActionResult<ArtistResponseDTO>> GetInfo()
+    [HttpGet("{artistName}/info")]
+    public async Task<ActionResult<ArtistResponseDTO>> GetInfo(string artistName)
     {
-      if (!await IsArtistAllowed())
-      {
-        return Unauthorized("Your access has been denied.");
-      }
-
       try
       {
-        string username = Request.Cookies["username"]!;
-        Artist? artist = await db.Artists.SingleOrDefaultAsync(a => a.Username == username);
+        Artist? artist = await db.Artists.SingleOrDefaultAsync(a => a.Username == artistName);
 
         if (artist == null)
         {
@@ -205,16 +199,9 @@ namespace SoulKingWebAPI.Controllers
       return Ok("Your profile image has been uploaded.");
     }
 
-    [HttpGet("profile-image")]
-    public async Task<IActionResult> GetImage()
+    [HttpGet("{artistName}/profile-image")]
+    public async Task<IActionResult> GetImage(string artistName)
     {
-      if (!await IsArtistAllowed())
-      {
-        return Unauthorized("Your access has been denied.");
-      }
-
-      var artistName = Request.Cookies["username"];
-
       Artist? artist = await db.Artists.SingleOrDefaultAsync(a => a.Username == artistName);
       
       if (artist == null)
@@ -348,11 +335,6 @@ namespace SoulKingWebAPI.Controllers
         return Unauthorized("Your access has been denied.");
       }
 
-      if (!await IsArtistAllowed())
-      {
-        return Unauthorized("Your access has been denied.");
-      }
-
       var artistName = Request.Cookies["username"];
 
       try
@@ -387,11 +369,6 @@ namespace SoulKingWebAPI.Controllers
       if (!await IsArtistAllowed())
       {
         return Unauthorized("Your access has been denied.");
-      }
-
-      if (Name == null || Name == string.Empty)
-      {
-        return BadRequest("Invalid album name.");
       }
 
       var artistName = Request.Cookies["username"];
@@ -540,11 +517,6 @@ namespace SoulKingWebAPI.Controllers
     [HttpGet("song/all")]
     public async Task<ActionResult<List<SongDTO>>> GetAllSongs()
     {
-      if (!await IsArtistAllowed())
-      {
-        return Unauthorized("Your access has been denied.");
-      }
-
       if (!await IsArtistAllowed())
       {
         return Unauthorized("Your access has been denied.");
@@ -927,7 +899,6 @@ namespace SoulKingWebAPI.Controllers
         Console.WriteLine(ex.Message);
         return false;
       }
-
     }
   }
 }

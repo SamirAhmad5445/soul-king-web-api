@@ -76,7 +76,7 @@ namespace SoulKingWebAPI.Controllers
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<string>> Login(UserLoginDTO request)
+    public async Task<ActionResult<UserLoginResponseDTO>> Login(UserLoginDTO request)
     {
       if (
         request.Username == null || request.Username == "" ||
@@ -112,7 +112,7 @@ namespace SoulKingWebAPI.Controllers
 
         await SetRefreshToken(user.Username, refreshToken);
 
-        return Ok(JwtToken);
+        return Ok(new UserLoginResponseDTO { Token = JwtToken, Username = user.Username});
       }
       catch (Exception)
       {
@@ -123,8 +123,8 @@ namespace SoulKingWebAPI.Controllers
     [HttpPut("refresh")]
     public async Task<ActionResult<string>> Refresh()
     {
-      //try
-      //{
+      try
+      {
         var Username = Request.Cookies["username"];
         var Token = Request.Cookies["refresh-token"];
 
@@ -155,11 +155,11 @@ namespace SoulKingWebAPI.Controllers
         await SetRefreshToken(user.Username, newRefreshToken);
 
         return Ok(newToken);
-      //}
-      //catch (Exception)
-      //{
-      //  return StatusCode(500, "An error occurred while generating the token.");
-      //}
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occurred while generating the token.");
+      }
     }
 
     [HttpGet("info"), Authorize(Roles = "User")]
@@ -234,6 +234,7 @@ namespace SoulKingWebAPI.Controllers
       };
 
       Response.Cookies.Append("username", Username, cookieOptions);
+      Response.Cookies.Append("role", "user", cookieOptions);
       Response.Cookies.Append("refresh-token", Token.Value, cookieOptions);
 
       try

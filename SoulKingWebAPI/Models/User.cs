@@ -6,7 +6,7 @@ namespace SoulKingWebAPI.Models
   public class User
   {
     #region Constructors
-    public User(int id, string username, byte[] passwordHash, byte[] passwordSalt, string firstName, string lastName, string email, string description, DateOnly birthDate)
+    public User(int id, string username, byte[] passwordHash, byte[] passwordSalt, string firstName, string lastName, string email, string profileImage, string description, DateOnly birthDate)
     {
       Id = id;
       Username = username;
@@ -15,6 +15,7 @@ namespace SoulKingWebAPI.Models
       FirstName = firstName;
       LastName = lastName;
       Email = email;
+      ProfileImage = profileImage;
       Description = description;
       BirthDate = birthDate;
     }
@@ -25,6 +26,7 @@ namespace SoulKingWebAPI.Models
       FirstName = firstName;
       LastName = lastName;
       Email = email;
+      ProfileImage = string.Empty;
       BirthDate = birthDate;
       Description = string.Empty;
 
@@ -40,6 +42,7 @@ namespace SoulKingWebAPI.Models
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string Email { get; set; }
+    public string ProfileImage { get; set; }
     public string Description { get; set; }
     public DateOnly BirthDate { get; set; }
     #endregion
