@@ -298,6 +298,214 @@ namespace SoulKingWebAPI.Controllers
     #endregion
 
     #region Songs Actions
+    [HttpGet("song/{artist}/{album}/{name}")]
+    public async Task<ActionResult<SongDTO>> GetSongInfo(string artist, string album, string name)
+    {
+      try
+      {
+        var song = await db.Songs
+          .Include(s => s.Artist)
+          .Include(s => s.Album)
+          .Include(s => s.Listeners)
+          .SingleOrDefaultAsync(
+            s => s.Name == name && s.Artist.Username == artist && s.Album.Name == album
+          );
+
+        if (song == null)
+        {
+          return NotFound("Song was not found.");
+        }
+
+        var result = new SongDTO().FromSong(song, song.Listeners.ToList().Count);
+
+        return Ok(result);
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occured while processing your request.");
+      }
+    }
+
+    [HttpGet("song/{artist}/{album}/{name}/listen")]
+    public async Task<IActionResult> ListenTOSong(string artist, string album, string name)
+    {
+      if (!await IsUserAllowed())
+      {
+        return Unauthorized("Your request has been denied.");
+      }
+
+      var username = Request.Cookies["username"];
+
+      try
+      {
+        var user = await db.Users
+          .Include(u => u.HeardSongs)
+          .SingleOrDefaultAsync(u => u.Username == username);
+
+        if (user == null)
+        {
+          return NotFound("Invalid Username.");
+        }
+
+        var song = await db.Songs
+          .Include(s => s.Artist)
+          .Include(s => s.Album)
+          .SingleOrDefaultAsync(
+            s => s.Name == name && s.Artist.Username == artist && s.Album.Name == album
+          );
+
+        if (song == null)
+        {
+          return NotFound("Song was not found.");
+        }
+
+        user.HeardSongs.Add(song);
+        await db.SaveChangesAsync();
+
+        var filePath = Path.Combine(env.ContentRootPath, song.FilePath);
+
+        if (!System.IO.File.Exists(filePath))
+          return NotFound("File not found.");
+
+        var mimeType = "audio/mpeg";
+        return PhysicalFile(filePath, mimeType, $"{song.FilePath}.mp3");
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occured while processing your request.");
+      }
+    }
+
+    [HttpGet("song/{artist}/{album}/{name}/image")]
+    public async Task<IActionResult> GetSongImage(string artist, string album, string name)
+    {
+      try
+      {
+        var song = await db.Songs
+          .Include(s => s.Artist)
+          .Include(s => s.Album)
+          .SingleOrDefaultAsync(
+            s => s.Name == name && s.Artist.Username == artist && s.Album.Name == album
+          );
+
+        if (song == null)
+        {
+          return NotFound("Song was not found.");
+        }
+
+        var filePath = Path.Combine(env.ContentRootPath, song!.ImagePath);
+
+        if (!System.IO.File.Exists(filePath))
+        {
+          return NotFound("Thumbnail file was not found.");
+        }
+
+        var image = System.IO.File.OpenRead(filePath);
+        return File(image, "image/webp");
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occured while processing your request.");
+      }
+    }
+
+    [HttpGet("like-song/{artist}/{album}/{name}")]
+    public async Task<ActionResult<string>> LikeSong(string artist, string album, string name)
+    {
+      if (!await IsUserAllowed())
+      {
+        return Unauthorized("Your request has been denied.");
+      }
+
+      var username = Request.Cookies["username"];
+
+      try
+      {
+        var user = await db.Users
+          .Include(u => u.LikedSongs)
+          .SingleOrDefaultAsync(u => u.Username == username);
+
+        if (user == null)
+        {
+          return NotFound("Invalid Username.");
+        }
+
+        var song = await db.Songs
+          .Include(s => s.Artist)
+          .Include(s => s.Album)
+          .SingleOrDefaultAsync(
+            s => s.Name == name && s.Artist.Username == artist && s.Album.Name == album
+          );
+
+        if (song == null)
+        {
+          return NotFound("Song was not found.");
+        }
+
+        if (user.LikedSongs.FirstOrDefault(s => s.Id == song.Id) != null)
+        {
+          return Conflict("The song has been liked once");
+        }
+
+        user.LikedSongs.Add(song);
+        await db.SaveChangesAsync();
+
+        return Ok("The song has been liked.");
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occured while processing your request.");
+      }
+    }
+
+    [HttpGet("unlike-song/{artist}/{album}/{name}")]
+    public async Task<ActionResult<string>> UnlikeSong(string artist, string album, string name)
+    {
+      if (!await IsUserAllowed())
+      {
+        return Unauthorized("Your request has been denied.");
+      }
+
+      var username = Request.Cookies["username"];
+
+      try
+      {
+        var user = await db.Users
+          .Include(u => u.LikedSongs)
+          .SingleOrDefaultAsync(u => u.Username == username);
+
+        if (user == null)
+        {
+          return NotFound("Invalid Username.");
+        }
+
+        var song = await db.Songs
+          .Include(s => s.Artist)
+          .Include(s => s.Album)
+          .SingleOrDefaultAsync(
+            s => s.Name == name && s.Artist.Username == artist && s.Album.Name == album
+          );
+
+        if (song == null)
+        {
+          return NotFound("Song was not found.");
+        }
+
+        if (user.LikedSongs.FirstOrDefault(s => s.Id == song.Id) == null)
+        {
+          return BadRequest("The song has never been liked before.");
+        }
+
+        user.LikedSongs.Remove(song);
+        await db.SaveChangesAsync();
+
+        return Ok("The song has been unliked.");
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occured while processing your request.");
+      }
+    }
     #endregion
 
     #region Albums Actions
