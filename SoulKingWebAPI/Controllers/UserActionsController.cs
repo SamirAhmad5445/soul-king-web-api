@@ -18,7 +18,6 @@ namespace SoulKingWebAPI.Controllers
     private readonly string PROFILE_IMAGES_FOLDER = "Users";
     private readonly string[] allowedImageExtensions = [".jpg", ".jpeg", ".png"];
 
-
     #region Profile Actions
     [HttpGet("{Username}/info")]
     public async Task<ActionResult<UserInfoDTO>> GetUserInfo(string Username)
@@ -45,9 +44,15 @@ namespace SoulKingWebAPI.Controllers
     [HttpPost("edit-profile")]
     public async Task<ActionResult<UserInfoDTO>> EditProfile(UserEditDTO request)
     {
+      if (!await IsUserAllowed())
+      {
+        return Unauthorized("Your request has been denied.");
+      }
+
+      var username = Request.Cookies["username"];
+
       try
       {
-        var username = Request.Cookies["username"];
         var user = await db.Users.SingleOrDefaultAsync(u => u.Username == username);
 
         if (user == null)
@@ -101,6 +106,40 @@ namespace SoulKingWebAPI.Controllers
       catch (Exception)
       {
         return StatusCode(500, "An error occurred while processing your request.");
+      }
+    }
+
+    [HttpGet("profile-image")]
+    public async Task<IActionResult> GetProfileImage()
+    {
+      if (!await IsUserAllowed())
+      {
+        return Unauthorized("Your request has been denied.");
+      }
+
+      var username = Request.Cookies["username"];
+
+      try
+      {
+        var user = await db.Users.SingleOrDefaultAsync(u => u.Username == username);
+
+        if (user == null)
+        {
+          return NotFound("User was not found.");
+        }
+        var filePath = Path.Combine(env.ContentRootPath, user.ProfileImage);
+
+        if (!System.IO.File.Exists(filePath))
+        {
+          return NotFound("Profile image file was not found.");
+        }
+
+        var image = System.IO.File.OpenRead(filePath);
+        return File(image, "image/webp");
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occured while processing your request.");
       }
     }
     #endregion
@@ -419,7 +458,6 @@ namespace SoulKingWebAPI.Controllers
     }
     #endregion
 
-
     private async Task<bool> IsUserAllowed()
     {
       var username = Request.Cookies["username"];
@@ -449,7 +487,7 @@ namespace SoulKingWebAPI.Controllers
           return false;
         }
 
-        return token.Equals(lastToken);
+        return token.Equals(lastToken.Value);
       }
       catch (Exception ex)
       {
