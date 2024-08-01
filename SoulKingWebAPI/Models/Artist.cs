@@ -7,7 +7,7 @@ namespace SoulKingWebAPI.Models
   public class Artist
   {
     #region Constructors
-    public Artist(int id, string username, string displayName, byte[] passwordHash, byte[] passwordSalt, string email, string description, string firstName, string lastName, DateOnly birthDate, bool isActivated, string token, int followersCount)
+    public Artist(int id, string username, string displayName, byte[] passwordHash, byte[] passwordSalt, string email, string description, string firstName, string lastName, string profileImage, DateOnly birthDate, bool isActivated, string token, int followersCount)
     {
       Id = id;
       Username = username;
@@ -19,6 +19,7 @@ namespace SoulKingWebAPI.Models
       FirstName = firstName;
       LastName = lastName;
       BirthDate = birthDate;
+      ProfileImage = profileImage;
       IsActivated = isActivated;
       Token = token;
       FollowersCount = followersCount;
@@ -35,6 +36,7 @@ namespace SoulKingWebAPI.Models
       LastName = lastName;
       BirthDate = birthDate;
       IsActivated = false;
+      ProfileImage = string.Empty;
       Token = string.Empty;
       FollowersCount = 0;
 
@@ -51,6 +53,7 @@ namespace SoulKingWebAPI.Models
       LastName = lastName;
       BirthDate = birthDate;
       IsActivated = false;
+      ProfileImage = string.Empty;
       Token = string.Empty;
       FollowersCount = 0;
 
@@ -68,6 +71,7 @@ namespace SoulKingWebAPI.Models
     public string Description { get; set; }
     public string FirstName { get; set;}
     public string LastName { get; set;}
+    public string ProfileImage { get; set; }
     public DateOnly BirthDate { get; set; }
     public bool IsActivated { get; set; } = false;
     public string Token { get; set; }

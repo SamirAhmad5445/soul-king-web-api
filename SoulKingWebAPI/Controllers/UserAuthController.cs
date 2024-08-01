@@ -17,8 +17,8 @@ namespace SoulKingWebAPI.Controllers
   [ApiController]
   public class UserAuthController(DatabaseContext db, IConfiguration config) : ControllerBase
   {
-    [HttpHead("check")]
-    public ActionResult<bool> IsUsernameAvailable(string Username)
+    [HttpPut("check")]
+    public ActionResult<bool> IsUsernameAvailable([FromBody]string Username)
     {
       if (Username == null || Username == string.Empty)
       {
@@ -123,8 +123,8 @@ namespace SoulKingWebAPI.Controllers
     [HttpPut("refresh")]
     public async Task<ActionResult<string>> Refresh()
     {
-      try
-      {
+      //try
+      //{
         var Username = Request.Cookies["username"];
         var Token = Request.Cookies["refresh-token"];
 
@@ -155,11 +155,11 @@ namespace SoulKingWebAPI.Controllers
         await SetRefreshToken(user.Username, newRefreshToken);
 
         return Ok(newToken);
-      }
-      catch (Exception)
-      {
-        return StatusCode(500, "An error occurred while generating the token.");
-      }
+      //}
+      //catch (Exception)
+      //{
+      //  return StatusCode(500, "An error occurred while generating the token.");
+      //}
     }
 
     [HttpGet("info"), Authorize(Roles = "User")]
@@ -229,7 +229,8 @@ namespace SoulKingWebAPI.Controllers
       {
         Secure = true,
         HttpOnly = true,
-        Expires = Token.ExpiryDate
+        Expires = Token.ExpiryDate,
+        SameSite = SameSiteMode.None,
       };
 
       Response.Cookies.Append("username", Username, cookieOptions);

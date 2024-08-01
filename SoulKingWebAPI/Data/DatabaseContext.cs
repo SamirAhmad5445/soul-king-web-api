@@ -43,18 +43,30 @@ namespace SoulKingWebAPI.Data
           .OnDelete(DeleteBehavior.ClientSetNull);
 
       modelBuilder.Entity<Artist>().HasData(
-          new Artist(
-            1,
-            "brook",
-            "Sk Brook", 
-            "abcd1234",
-            "sk.brook@strawhats.com",
-            "A musician and swordsman who is also a skeleton.",
-            "Soul King",
-            "Brook",
-            new DateOnly(1974, 4, 13))
+            new Artist(
+              1,
+              "brook",
+              "Sk Brook",
+              "pass1234",
+              "sk.brook@strawhats.com",
+              "A musician and swordsman who is also a skeleton.",
+              "Soul King",
+              "Brook",
+              new DateOnly(1974, 4, 13)
+            ),
+            new Artist(
+              2,
+              "uta",
+              "Uta",
+              "pass1234",
+              "uta@redhairpirates.com",
+              "Brings happiness and joy to everyone by my songs.",
+              "Diva",
+              "Uta",
+              new DateOnly(1996, 8, 29)
+            )
         );
-      
+
       modelBuilder.Entity<Category>().HasData(
           new Category(1, "Rock"),
           new Category(2, "Pop"),

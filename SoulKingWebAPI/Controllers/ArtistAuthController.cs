@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 
 namespace SoulKingWebAPI.Controllers
 {
-  [Route("api/atrist")]
+  [Route("api/artist")]
   [ApiController]
   public class ArtistAuthController(DatabaseContext db) : ControllerBase
   {
@@ -60,7 +60,7 @@ namespace SoulKingWebAPI.Controllers
     }
 
     [HttpPut("activate")]
-    public async Task<ActionResult<ArtistResponseDTO>> Activate(string NewPassword)
+    public async Task<ActionResult<ArtistResponseDTO>> Activate([FromBody]string NewPassword)
     {
       try
       {

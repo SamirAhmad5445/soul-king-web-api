@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoulKingWebAPI.Data;
 
@@ -11,9 +12,11 @@ using SoulKingWebAPI.Data;
 namespace SoulKingWebAPI.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240730225858_AddNewArtist")]
+    partial class AddNewArtist
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -134,10 +137,6 @@ namespace SoulKingWebAPI.Migrations
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Thumbnail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ArtistId");
@@ -190,10 +189,6 @@ namespace SoulKingWebAPI.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("ProfileImage")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -218,9 +213,8 @@ namespace SoulKingWebAPI.Migrations
                             FollowersCount = 0,
                             IsActivated = false,
                             LastName = "Brook",
-                            PasswordHash = new byte[] { 96, 232, 165, 33, 212, 216, 159, 37, 145, 233, 75, 196, 179, 231, 106, 57, 243, 118, 62, 226, 55, 216, 118, 19, 143, 193, 159, 52, 238, 85, 112, 136, 53, 242, 12, 239, 33, 102, 120, 119, 229, 213, 1, 16, 81, 123, 162, 152, 95, 162, 199, 249, 71, 211, 99, 206, 155, 201, 22, 172, 61, 55, 232, 4 },
-                            PasswordSalt = new byte[] { 165, 88, 116, 134, 92, 231, 102, 167, 111, 99, 223, 42, 196, 178, 16, 65, 35, 208, 97, 87, 190, 244, 244, 149, 31, 60, 120, 111, 128, 87, 82, 156, 184, 28, 248, 219, 253, 64, 58, 72, 48, 123, 241, 5, 92, 75, 120, 32, 4, 143, 104, 186, 104, 17, 204, 240, 226, 87, 157, 21, 227, 133, 47, 29, 51, 102, 13, 140, 51, 109, 57, 224, 174, 158, 251, 50, 123, 221, 9, 160, 28, 233, 214, 222, 16, 13, 147, 152, 41, 62, 64, 253, 29, 111, 210, 17, 21, 225, 114, 140, 103, 60, 218, 32, 129, 156, 46, 28, 241, 41, 37, 223, 152, 217, 184, 60, 204, 15, 164, 14, 34, 198, 201, 99, 164, 177, 42, 241 },
-                            ProfileImage = "",
+                            PasswordHash = new byte[] { 7, 178, 28, 193, 94, 103, 209, 47, 16, 217, 227, 254, 58, 29, 56, 157, 110, 247, 153, 38, 157, 74, 46, 27, 187, 175, 141, 108, 182, 155, 208, 116, 192, 132, 72, 191, 153, 74, 43, 113, 80, 193, 134, 77, 98, 185, 117, 25, 110, 138, 69, 168, 233, 42, 124, 153, 200, 148, 59, 251, 75, 10, 215, 70 },
+                            PasswordSalt = new byte[] { 46, 155, 6, 231, 13, 191, 85, 98, 113, 26, 218, 158, 22, 205, 121, 33, 237, 208, 212, 192, 46, 25, 195, 48, 157, 177, 220, 192, 118, 201, 239, 177, 40, 188, 151, 191, 75, 216, 182, 205, 202, 224, 137, 244, 242, 248, 224, 6, 97, 1, 55, 91, 158, 23, 247, 95, 107, 123, 30, 213, 83, 3, 112, 105, 31, 91, 30, 114, 14, 191, 49, 160, 243, 239, 224, 60, 195, 193, 43, 231, 122, 160, 160, 44, 221, 20, 198, 168, 45, 235, 172, 162, 211, 191, 193, 103, 127, 31, 232, 137, 115, 88, 124, 8, 31, 228, 195, 29, 23, 97, 60, 37, 56, 190, 91, 78, 157, 200, 248, 43, 177, 146, 227, 39, 17, 148, 178, 219 },
                             Token = "",
                             Username = "brook"
                         },
@@ -235,9 +229,8 @@ namespace SoulKingWebAPI.Migrations
                             FollowersCount = 0,
                             IsActivated = false,
                             LastName = "Uta",
-                            PasswordHash = new byte[] { 38, 43, 187, 41, 92, 153, 242, 18, 20, 36, 120, 66, 34, 194, 246, 139, 248, 10, 156, 35, 74, 189, 177, 129, 124, 185, 157, 185, 234, 254, 67, 106, 77, 235, 39, 110, 61, 36, 101, 95, 187, 93, 30, 187, 166, 170, 248, 103, 145, 0, 64, 86, 81, 140, 99, 197, 209, 16, 160, 228, 153, 167, 23, 150 },
-                            PasswordSalt = new byte[] { 151, 76, 253, 92, 46, 71, 173, 172, 101, 224, 55, 163, 29, 112, 140, 8, 124, 136, 25, 236, 19, 94, 84, 137, 236, 236, 229, 177, 60, 230, 218, 205, 72, 205, 206, 148, 2, 64, 105, 142, 223, 120, 101, 86, 6, 194, 192, 67, 143, 144, 148, 213, 238, 215, 52, 232, 42, 228, 94, 115, 84, 73, 6, 150, 50, 137, 198, 43, 118, 120, 84, 115, 90, 137, 63, 99, 161, 144, 212, 26, 95, 92, 44, 22, 22, 65, 15, 71, 125, 200, 92, 83, 62, 189, 229, 100, 80, 230, 174, 255, 64, 45, 228, 99, 249, 115, 77, 192, 181, 49, 22, 238, 211, 242, 49, 103, 192, 190, 150, 51, 226, 33, 92, 209, 255, 25, 138, 73 },
-                            ProfileImage = "",
+                            PasswordHash = new byte[] { 21, 217, 94, 226, 192, 149, 140, 209, 33, 63, 169, 12, 188, 130, 98, 222, 147, 17, 35, 222, 122, 199, 67, 6, 245, 239, 74, 149, 45, 99, 41, 110, 167, 112, 173, 163, 98, 177, 9, 203, 168, 37, 182, 75, 208, 245, 255, 12, 75, 114, 86, 97, 93, 115, 248, 216, 81, 208, 42, 54, 115, 41, 223, 160 },
+                            PasswordSalt = new byte[] { 49, 46, 70, 8, 131, 91, 99, 230, 161, 250, 123, 137, 43, 3, 195, 115, 149, 167, 75, 72, 190, 119, 32, 205, 185, 61, 147, 188, 148, 73, 66, 97, 14, 151, 79, 44, 133, 23, 172, 232, 8, 95, 212, 155, 86, 203, 2, 211, 195, 186, 224, 26, 245, 91, 106, 44, 185, 143, 145, 168, 23, 108, 176, 67, 113, 20, 111, 104, 176, 188, 45, 54, 150, 228, 180, 175, 91, 154, 85, 12, 119, 44, 182, 9, 142, 58, 57, 57, 184, 177, 217, 248, 226, 184, 146, 124, 116, 99, 9, 217, 10, 93, 166, 30, 130, 191, 93, 147, 180, 43, 49, 213, 113, 101, 147, 144, 180, 169, 229, 242, 202, 17, 235, 94, 92, 241, 137, 80 },
                             Token = "",
                             Username = "uta"
                         });
@@ -421,10 +414,6 @@ namespace SoulKingWebAPI.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImagePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

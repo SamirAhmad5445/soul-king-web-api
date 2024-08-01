@@ -3,18 +3,20 @@
   public class Album
   {
     #region Constructors
-    public Album(int id, string name, string description, DateTime releaseDate)
+    public Album(int id, string name, string description, DateTime releaseDate, string thumbnail)
     {
       Id = id;
       Name = name;
       Description = description;
       ReleaseDate = releaseDate;
+      Thumbnail = thumbnail;
     }
-    public Album(string name, string description, DateTime releaseDate)
+    public Album(string name, string description, string thumbnail)
     {
       Name = name;
       Description = description;
-      ReleaseDate = releaseDate;
+      ReleaseDate = DateTime.Now;
+      Thumbnail = thumbnail;
     }
     #endregion
 
@@ -23,6 +25,7 @@
     public string Name { get; set; }
     public string Description { get; set; }
     public DateTime ReleaseDate { get; set; }
+    public string Thumbnail { get; set; }
     #endregion
 
     #region Relationships
@@ -34,6 +37,5 @@
     // user
     public List<User> LikedUsers { get; set; } // M:N
     #endregion
-
   }
 }

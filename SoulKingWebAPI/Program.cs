@@ -43,6 +43,33 @@ builder.Services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
+// Add Cores policy
+builder.Services.AddCors(options =>
+{
+  options.AddPolicy("AllowAll",
+      policy =>
+      {
+        var origin = builder.Configuration["WebApplication:Host"];
+
+        if (origin == null)
+        {
+          policy.AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+
+          return;
+        }
+
+        policy.WithOrigins(origin)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+      });
+});
+
+// Add IWebHostEnvironment to the services
+builder.Services.AddSingleton(builder.Environment);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -53,6 +80,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAll");
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

@@ -3,20 +3,22 @@
   public class Song
   {
     #region Constructors
-    public Song(int id, string name, string filePath, DateTime releaseDate, int likesCount)
+    public Song(int id, string name, string filePath, string imagePath, DateTime releaseDate, int likesCount)
     {
       Id = id;
       Name = name;
       FilePath = filePath;
+      ImagePath = imagePath;
       ReleaseDate = releaseDate;
       LikesCount = likesCount;
     }
 
-    public Song(string name, string filePath, DateTime releaseDate)
+    public Song(string name, string filePath, string imagePath)
     {
       Name = name;
       FilePath = filePath;
-      ReleaseDate = releaseDate;
+      ImagePath = imagePath;
+      ReleaseDate = DateTime.Now;
       LikesCount = 0;
     }
     #endregion
@@ -25,6 +27,7 @@
     public int Id { get; set; }
     public string Name { get; set; }
     public string FilePath { get; set; }
+    public string ImagePath { get; set; }
     public DateTime ReleaseDate { get; set; }
     public int LikesCount { get; set; } = 0;
     #endregion
