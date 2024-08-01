@@ -1,12 +1,10 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SoulKingWebAPI.Data;
 using SoulKingWebAPI.Models;
 using SoulKingWebAPI.Models.DTO;
-
 
 namespace SoulKingWebAPI.Controllers
 {
@@ -45,7 +43,43 @@ namespace SoulKingWebAPI.Controllers
       }
       catch (Exception)
       {
-        return StatusCode(500, "An error occurred while generating the token.");
+        return StatusCode(500, "An error occurred while proccessing your request.");
+      }
+    }
+
+    [HttpGet("status")]
+    public async Task<ActionResult<ArtistStatusDTO>> GetStatus()
+    {
+      if (!await IsArtistAllowed())
+      {
+        return Unauthorized("Your access has been denied.");
+      }
+
+      try
+      {
+        string username = Request.Cookies["username"]!;
+        Artist? artist = await db.Artists
+          .Include(a => a.Songs)
+          .Include(a => a.Albums)
+          .SingleOrDefaultAsync(a => a.Username == username);
+
+        if (artist == null)
+        {
+          return NotFound("Artist account was not found.");
+        }
+
+        var status = new ArtistStatusDTO
+        {
+          AlbumsCount = artist.Albums.ToList().Count,
+          SongsCount = artist.Songs.ToList().Count,
+          FollowersCount = artist.FollowersCount
+        };
+
+        return Ok(status);
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occurred while proccessing your request.");
       }
     }
 
@@ -112,7 +146,7 @@ namespace SoulKingWebAPI.Controllers
       }
       catch (Exception)
       {
-        return StatusCode(500, "An error occurred while generating the token.");
+        return StatusCode(500, "An error occurred while proccessing your request.");
       }
     }
 
@@ -302,7 +336,7 @@ namespace SoulKingWebAPI.Controllers
       }
       catch (Exception)
       {
-        return StatusCode(500, "An error occurred while generating the token.");
+        return StatusCode(500, "An error occurred while proccessing your request.");
       }
     }
 
@@ -343,7 +377,7 @@ namespace SoulKingWebAPI.Controllers
       }
       catch (Exception)
       {
-        return StatusCode(500, "An error occurred while generating the token.");
+        return StatusCode(500, "An error occurred while proccessing your request.");
       }
     }
 
@@ -502,7 +536,49 @@ namespace SoulKingWebAPI.Controllers
     }
     #endregion
 
-    #region SongsActions
+    #region Songs Actions
+    [HttpGet("song/all")]
+    public async Task<ActionResult<List<SongDTO>>> GetAllSongs()
+    {
+      if (!await IsArtistAllowed())
+      {
+        return Unauthorized("Your access has been denied.");
+      }
+
+      if (!await IsArtistAllowed())
+      {
+        return Unauthorized("Your access has been denied.");
+      }
+
+      var artistName = Request.Cookies["username"];
+
+      try
+      {
+        Artist? artist = await db.Artists
+          .Include(a => a.Songs)
+          .SingleOrDefaultAsync(a => a.Username == artistName);
+
+        if (artist == null)
+        {
+          return NotFound("Artist was not found.");
+        }
+
+        List<SongDTO> results = [];
+
+        foreach (var song in artist.Songs.ToList())
+        {
+          var listenersCount = db.Songs.Include(s => s.Listeners).SingleOrDefault(s => s.Id == song.Id)!.Listeners.ToList().Count;
+          results.Add(new SongDTO().FromSong(song, listenersCount));
+        }
+
+        return Ok(results);
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occurred while proccessing your request.");
+      }
+    }
+
     [HttpPost("album/add-song")]
     public async Task<ActionResult<string>> ReleaseSong(ReleaseSongDTO request)
     {
@@ -613,7 +689,7 @@ namespace SoulKingWebAPI.Controllers
       }
       catch (Exception)
       {
-        return StatusCode(500, "An error occurred while generating the token.");
+        return StatusCode(500, "An error occurred while proccessing your request.");
       }
     }
 
@@ -660,7 +736,7 @@ namespace SoulKingWebAPI.Controllers
       }
       catch (Exception)
       {
-        return StatusCode(500, "An error occurred while generating the token.");
+        return StatusCode(500, "An error occurred while proccessing your request.");
       }
     }
 
@@ -698,7 +774,7 @@ namespace SoulKingWebAPI.Controllers
       }
       catch (Exception)
       {
-        return StatusCode(500, "An error occurred while generating the token.");
+        return StatusCode(500, "An error occurred while proccessing your request.");
       }
     }
 
@@ -820,7 +896,7 @@ namespace SoulKingWebAPI.Controllers
       }
       catch (Exception)
       {
-        return StatusCode(500, "An error occurred while generating the token.");
+        return StatusCode(500, "An error occurred while proccessing your request.");
       }
     }
     #endregion
