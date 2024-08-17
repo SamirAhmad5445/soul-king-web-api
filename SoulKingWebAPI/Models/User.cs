@@ -54,7 +54,6 @@ namespace SoulKingWebAPI.Models
     public List<Playlist> Playlists { get; set; } // 1:N
     public List<Playlist> SavedPlaylists { get; set; } // M:N
     // Songs
-    public List<Song> HeardSongs { get; set; } // M:N
     public List<Song> LikedSongs { get; set; } // M:N
     // Artists
     public List<Artist> FollowedArtist { get; set; } // M:N

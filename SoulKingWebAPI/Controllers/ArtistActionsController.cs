@@ -227,7 +227,7 @@ namespace SoulKingWebAPI.Controllers
     #endregion
 
     #region Albums Actions
-    [HttpPost("album/relase")]
+    [HttpPost("album/release")]
     public async Task<ActionResult<string>> RelaseAlbum(ReleaseAlbumDTO request)
     {
       if (!await IsArtistAllowed())
@@ -539,8 +539,7 @@ namespace SoulKingWebAPI.Controllers
 
         foreach (var song in artist.Songs.ToList())
         {
-          var listenersCount = db.Songs.Include(s => s.Listeners).SingleOrDefault(s => s.Id == song.Id)!.Listeners.ToList().Count;
-          results.Add(new SongDTO().FromSong(song, listenersCount));
+          results.Add(new SongDTO().FromSong(song));
         }
 
         return Ok(results);
@@ -695,14 +694,8 @@ namespace SoulKingWebAPI.Controllers
 
         foreach (var song in album.Songs.ToList())
         {
-          var Listeners = db.Songs
-            .Include(s => s.Listeners)
-            .SingleOrDefault(s => s.Id == song.Id)
-            !.Listeners.ToList();
-
-          results.Add(new SongDTO().FromSong(song, Listeners.Count));
+          results.Add(new SongDTO().FromSong(song));
         }
-
 
         return Ok(results);
       }
@@ -731,7 +724,6 @@ namespace SoulKingWebAPI.Controllers
         var song = await db.Songs
           .Include(s => s.Artist)
           .Include(s => s.Album)
-          .Include(s => s.Listeners)
           .SingleOrDefaultAsync(
             s => s.Name == Name && s.Artist.Username == artistName && s.Album.Name == AlbumName
           );
@@ -741,7 +733,7 @@ namespace SoulKingWebAPI.Controllers
           return NotFound("song was not found.");
         }
 
-        var result = new SongDTO().FromSong(song, song.Listeners.ToList().Count);
+        var result = new SongDTO().FromSong(song);
         return Ok(result);
       }
       catch (Exception)

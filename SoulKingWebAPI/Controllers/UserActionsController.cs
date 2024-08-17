@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SoulKingWebAPI.Data;
-using SoulKingWebAPI.Models;
 using SoulKingWebAPI.Models.DTO;
 
 namespace SoulKingWebAPI.Controllers
@@ -306,7 +304,6 @@ namespace SoulKingWebAPI.Controllers
         var song = await db.Songs
           .Include(s => s.Artist)
           .Include(s => s.Album)
-          .Include(s => s.Listeners)
           .SingleOrDefaultAsync(
             s => s.Name == name && s.Artist.Username == artist && s.Album.Name == album
           );
@@ -316,7 +313,7 @@ namespace SoulKingWebAPI.Controllers
           return NotFound("Song was not found.");
         }
 
-        var result = new SongDTO().FromSong(song, song.Listeners.ToList().Count);
+        var result = new SongDTO().FromSong(song);
 
         return Ok(result);
       }
@@ -327,7 +324,7 @@ namespace SoulKingWebAPI.Controllers
     }
 
     [HttpGet("song/{artist}/{album}/{name}/listen")]
-    public async Task<IActionResult> ListenTOSong(string artist, string album, string name)
+    public async Task<ActionResult<string>> ListenTOSong(string artist, string album, string name)
     {
       if (!await IsUserAllowed())
       {
@@ -338,15 +335,6 @@ namespace SoulKingWebAPI.Controllers
 
       try
       {
-        var user = await db.Users
-          .Include(u => u.HeardSongs)
-          .SingleOrDefaultAsync(u => u.Username == username);
-
-        if (user == null)
-        {
-          return NotFound("Invalid Username.");
-        }
-
         var song = await db.Songs
           .Include(s => s.Artist)
           .Include(s => s.Album)
@@ -359,7 +347,7 @@ namespace SoulKingWebAPI.Controllers
           return NotFound("Song was not found.");
         }
 
-        user.HeardSongs.Add(song);
+        song.PlaysCount++;
         await db.SaveChangesAsync();
 
         var filePath = Path.Combine(env.ContentRootPath, song.FilePath);

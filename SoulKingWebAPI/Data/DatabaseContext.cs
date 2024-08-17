@@ -31,11 +31,6 @@ namespace SoulKingWebAPI.Data
              .UsingEntity(j => j.ToTable("UserSavedPlaylist"));
 
       modelBuilder.Entity<Song>()
-          .HasMany(s => s.Listeners)
-          .WithMany(u => u.HeardSongs)
-          .UsingEntity(j => j.ToTable("UserSongs"));
-
-      modelBuilder.Entity<Song>()
           .HasOne(s => s.Artist)
           .WithMany(a => a.Songs)
           .HasForeignKey(s => s.ArtistId)

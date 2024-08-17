@@ -7,14 +7,14 @@
     public string Name { get; set; }
     public DateTime ReleaseDate { get; set; }
     public int LikesCount { get; set; }
-    public int ListenersCount { get; set; }
+    public int PlaysCount { get; set; }
 
-    public SongDTO FromSong(Song song, int listenersCount)
+    public SongDTO FromSong(Song song)
     {
       Name = song.Name;
       ReleaseDate = song.ReleaseDate;
       LikesCount = song.LikesCount;
-      ListenersCount = listenersCount;
+      PlaysCount = song.PlaysCount;
 
       return this;
     }
