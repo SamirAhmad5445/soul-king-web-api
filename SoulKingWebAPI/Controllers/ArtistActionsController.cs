@@ -85,11 +85,6 @@ namespace SoulKingWebAPI.Controllers
         return Unauthorized("Your access has been denied.");
       }
 
-      if (request.Email == null || request.Email == string.Empty)
-      {
-        return BadRequest("Invalid email.");
-      }
-
       if (request.FirstName == null || request.FirstName == string.Empty)
       {
         return BadRequest("Invalid first name.");
@@ -110,11 +105,6 @@ namespace SoulKingWebAPI.Controllers
         return BadRequest("Invalid profile description.");
       }
 
-      if (request.BirthDate > DateOnly.FromDateTime(DateTime.Now))
-      {
-        return BadRequest("Invalid date of birth.");
-      }
-
       try
       {
         var artistName = Request.Cookies["username"];
@@ -126,12 +116,10 @@ namespace SoulKingWebAPI.Controllers
           return NotFound("Artist was not found.");
         }
 
-        artist.Email = request.Email;
         artist.FirstName = request.FirstName;
         artist.LastName = request.LastName;
         artist.DisplayName = request.DisplayName;
         artist.Description = request.Description;
-        artist.BirthDate = request.BirthDate;
 
         db.Artists.Update(artist);
         await db.SaveChangesAsync();

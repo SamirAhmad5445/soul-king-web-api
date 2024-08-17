@@ -146,7 +146,29 @@ namespace SoulKingWebAPI.Controllers
     #endregion
 
     #region Artists Action
-    [HttpGet("get-artists/{Start}")]
+    [HttpGet("get-artists"), AllowAnonymous]
+    public async Task<ActionResult<List<ArtistResponseDTO>>> GetAllArtists(int Start)
+    {
+      try
+      {
+        var artists = await db.Artists.ToListAsync();
+
+        List<ArtistResponseDTO> results = [];
+
+        foreach (var artist in artists)
+        {
+          results.Add(new ArtistResponseDTO().FromArtist(artist));
+        }
+
+        return Ok(results);
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occured while processing your request.");
+      }
+    }
+
+    [HttpGet("get-artists/{Start}"), AllowAnonymous]
     public async Task<ActionResult<List<ArtistResponseDTO>>> GetArtists(int Start)
     {
       try
@@ -168,7 +190,7 @@ namespace SoulKingWebAPI.Controllers
       }
     }
 
-    [HttpGet("get-artist/{Name}")]
+    [HttpGet("get-artist/{Name}"), AllowAnonymous]
     public async Task<ActionResult<ArtistResponseDTO>> GetArtistByName(string Name)
     {
       try
@@ -188,7 +210,7 @@ namespace SoulKingWebAPI.Controllers
       }
     }
 
-    [HttpGet("get-artist/{Name}/profile-image")]
+    [HttpGet("get-artist/{Name}/profile-image"), AllowAnonymous]
     public async Task<IActionResult> GetArtisProfileImage(string Name)
     {
       try
@@ -296,7 +318,58 @@ namespace SoulKingWebAPI.Controllers
     #endregion
 
     #region Songs Actions
-    [HttpGet("song/{artist}/{album}/{name}")]
+    [HttpGet("get-songs"), AllowAnonymous]
+    public async Task<ActionResult<List<SongResponseDTO>>> GetAllSongs(int Start)
+    {
+      try
+      {
+        var songs = await db.Songs
+          .Include(s => s.Album)
+          .Include(s => s.Artist)
+          .ToListAsync();
+
+        List<SongResponseDTO> results = [];
+
+        foreach (var s in songs)
+        {
+          results.Add(new SongResponseDTO().FromSong(s, s.Artist.Username, s.Album.Name));
+        }
+
+        return Ok(results);
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occured while processing your request.");
+      }
+    }
+    [HttpGet("get-songs/{Start}"), AllowAnonymous]
+    public async Task<ActionResult<List<SongResponseDTO>>> GetSongs(int Start)
+    {
+      try
+      {
+        var songs = await db.Songs
+          .Include(s => s.Album)
+          .Include(s => s.Artist)
+          .ToListAsync();
+
+        List<SongResponseDTO> results = [];
+
+        foreach (var s in songs)
+        {
+          results.Add(new SongResponseDTO().FromSong(s, s.Artist.Username, s.Album.Name));
+
+          if (results.Count == Start + 8) break;
+        }
+
+        return Ok(results);
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occured while processing your request.");
+      }
+    }
+
+    [HttpGet("song/{artist}/{album}/{name}"), AllowAnonymous]
     public async Task<ActionResult<SongDTO>> GetSongInfo(string artist, string album, string name)
     {
       try
@@ -364,7 +437,7 @@ namespace SoulKingWebAPI.Controllers
       }
     }
 
-    [HttpGet("song/{artist}/{album}/{name}/image")]
+    [HttpGet("song/{artist}/{album}/{name}/image"), AllowAnonymous]
     public async Task<IActionResult> GetSongImage(string artist, string album, string name)
     {
       try
@@ -397,7 +470,7 @@ namespace SoulKingWebAPI.Controllers
       }
     }
 
-    [HttpGet("like-song/{artist}/{album}/{name}")]
+    [HttpPut("like-song/{artist}/{album}/{name}")]
     public async Task<ActionResult<string>> LikeSong(string artist, string album, string name)
     {
       if (!await IsUserAllowed())
@@ -446,7 +519,7 @@ namespace SoulKingWebAPI.Controllers
       }
     }
 
-    [HttpGet("unlike-song/{artist}/{album}/{name}")]
+    [HttpPut("unlike-song/{artist}/{album}/{name}")]
     public async Task<ActionResult<string>> UnlikeSong(string artist, string album, string name)
     {
       if (!await IsUserAllowed())
@@ -497,18 +570,18 @@ namespace SoulKingWebAPI.Controllers
     #endregion
 
     #region Albums Actions
-    [HttpGet("get-albums/{Start}")]
-    public async Task<ActionResult<List<AlbumDTO>>> GetAlbums(int Start)
+    [HttpGet("get-albums"), AllowAnonymous]
+    public async Task<ActionResult<List<AlbumResponseDTO>>> GetAllAlbums(int Start)
     {
       try
       {
-        var albums = await db.Albums.ToListAsync();
+        var albums = await db.Albums.Include(al => al.Artist).ToListAsync();
 
-        List<AlbumDTO> results = [];
+        List<AlbumResponseDTO> results = [];
 
-        foreach(var al in albums.GetRange(Start, Math.Min(30, albums.ToList().Count - 1)))
+        foreach (var al in albums)
         {
-          results.Add(new AlbumDTO().FromAlbum(al));
+          results.Add(new AlbumResponseDTO().FromAlbum(al, al.Artist.Username));
         }
 
         return Ok(results);
@@ -519,7 +592,31 @@ namespace SoulKingWebAPI.Controllers
       }
     }
 
-    [HttpGet("get-album/{artist}/{name}")]
+    [HttpGet("get-albums/{Start}"), AllowAnonymous]
+    public async Task<ActionResult<List<AlbumResponseDTO>>> GetAlbums(int Start)
+    {
+      try
+      {
+        var albums = await db.Albums.Include(al => al.Artist).ToListAsync();
+
+        List<AlbumResponseDTO> results = [];
+
+        foreach(var al in albums)
+        {
+          results.Add(new AlbumResponseDTO().FromAlbum(al, al.Artist.Username));
+
+          if (results.Count == Start + 8) break;
+        }
+
+        return Ok(results);
+      }
+      catch (Exception)
+      {
+        return StatusCode(500, "An error occured while processing your request.");
+      }
+    }
+
+    [HttpGet("get-album/{artist}/{name}"), AllowAnonymous]
     public async Task<ActionResult<AlbumDTO>> GetAlbumByName(string artist,string name)
     {
       try
@@ -541,7 +638,7 @@ namespace SoulKingWebAPI.Controllers
       }
     }
 
-    [HttpGet("get-album/{artist}/{name}/thumbnail")]
+    [HttpGet("get-album/{artist}/{name}/thumbnail"), AllowAnonymous]
     public async Task<IActionResult> GetAlbumThumbnail(string artist, string name)
     {
       try
